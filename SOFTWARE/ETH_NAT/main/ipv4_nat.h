@@ -44,6 +44,18 @@
 #include "lwip/ip_addr.h"
 #include "lwip/opt.h"
 
+
+
+
+ typedef struct _ip_addr_nat {
+   union {
+         ip6_addr_t ip6;
+         ip4_addr_t ip4;
+      } u_addr;
+      ip4_addr_t addr;
+      u8_t type;
+   } ip_addr_t_nat;
+
 /** Timer interval at which to call ip_nat_tmr() */
 #define LWIP_NAT_TMR_INTERVAL_SEC        (30)
 
@@ -56,10 +68,10 @@ struct pbuf;
 
 typedef struct ip_nat_entry
 {
-  ip4_addr_t    source_net;  // ip_addr_t
-  ip4_addr_t    source_netmask;
-  ip4_addr_t    dest_net;
-  ip4_addr_t    dest_netmask;
+  ip_addr_t_nat    source_net;  // ip_addr_t
+  ip_addr_t_nat    source_netmask;
+  ip_addr_t_nat    dest_net;
+  ip_addr_t_nat    dest_netmask;
   struct netif *out_if;
   struct netif *in_if;
 } ip_nat_entry_t;

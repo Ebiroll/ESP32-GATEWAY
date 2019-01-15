@@ -143,14 +143,21 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)
         ESP_LOGI(TAG, "Ethernet Started");
         break;
     case SYSTEM_EVENT_ETH_GOT_IP:
-        memset(&ip, 0, sizeof(tcpip_adapter_ip_info_t));
-        ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(ESP_IF_ETH, &ip));
-        ESP_LOGI(TAG, "Ethernet Got IP Addr");
-        ESP_LOGI(TAG, "~~~~~~~~~~~");
-        ESP_LOGI(TAG, "ETHIP:" IPSTR, IP2STR(&ip.ip));
-        ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip.netmask));
-        ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip.gw));
-        ESP_LOGI(TAG, "~~~~~~~~~~~");
+        {
+            memset(&ip, 0, sizeof(tcpip_adapter_ip_info_t));
+            ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(ESP_IF_ETH, &ip));
+            ESP_LOGI(TAG, "Ethernet Got IP Addr");
+            ESP_LOGI(TAG, "~~~~~~~~~~~");
+            ESP_LOGI(TAG, "ETHIP:" IPSTR, IP2STR(&ip.ip));
+            ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip.netmask));
+            ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip.gw));
+            ESP_LOGI(TAG, "~~~~~~~~~~~");
+
+
+
+
+
+        }
         break;
     case SYSTEM_EVENT_ETH_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");

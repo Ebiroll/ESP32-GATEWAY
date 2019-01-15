@@ -74,8 +74,8 @@
 #ifdef LWIP_USING_NAT
 
 //#include "lwip/ip.h"
-#include "lwip/ip4.h"
-#include "lwip/ip_addr.h"
+//#include "lwip/ip4.h"
+#include "lwip/ip4_addr.h"
 #include "lwip/inet.h"
 #include "lwip/netif.h"
 #include "lwip/ip_addr.h"
@@ -89,6 +89,22 @@
 
 #include <limits.h>
 #include <string.h>
+
+#undef  IP_GET_TYPE
+#define IP_GET_TYPE(ipaddr) IPADDR_TYPE_V4 
+
+#undef ip_2_ip4
+#define ip_2_ip4  (&((ipaddr)->addr))
+
+
+/*
+
+#undef ip_2_ip4
+#define ip_2_ip4  (&((ipaddr)->u_addr.ip4))
+
+#undef  ip_addr_netcmp
+#define ip_addr_netcmp(addr1, addr2, mask) ip4_addr_netcmp(ip_2_ip4(addr1), ip_2_ip4(addr2), mask)
+*/
 
 /** Define this to enable debug output of this module */
 #ifndef LWIP_NAT_DEBUG
@@ -119,7 +135,7 @@ typedef struct ip_nat_conf
 typedef struct ip_nat_entry_common
 {
   s32_t           ttl; /* @todo: do we really need this to be signed?? */
-  ip_addr_t       source;
+  ip_addr_t_nat       source;
   ip_addr_t       dest;
   ip_nat_conf_t   *cfg;
 } ip_nat_entry_common_t;
@@ -304,10 +320,10 @@ ip_nat_add(const ip_nat_entry_t *new_entry)
 void
 ip_nat_remove(const ip_nat_entry_t *remove_entry)
 {
+  #if 0
   ip_nat_conf_t *cur = ip_nat_cfg;
   ip_nat_conf_t *next;
   ip_nat_conf_t *previous = NULL;
-
   while (cur != NULL) {
     /* Remove the NAT interfaces 
     (cur->entry.source_net.addr     == remove_entry->source_net.addr) &&
@@ -315,8 +331,7 @@ ip_nat_remove(const ip_nat_entry_t *remove_entry)
 
     */
     if (
-       
-        (cur->entry.dest_net.addr       == remove_entry->dest_net.addr) &&
+        ip_addr_cmp(cur->entry.dest_net.addr,remove_entry->dest_net.addr) && 
         (cur->entry.out_if              == remove_entry->out_if) &&
         (cur->entry.in_if               == remove_entry->in_if))
     {
@@ -338,6 +353,7 @@ ip_nat_remove(const ip_nat_entry_t *remove_entry)
       cur = cur->next;
     }
   }
+  #endif
 }
 
 /** Reset a NAT configured entry to be reused.
