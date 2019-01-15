@@ -196,6 +196,21 @@ void wifi_init_softap()
 }
 
 
+u8_t netif_get_index(struct netif *inp)
+{
+    u8_t ix=0;
+        // List all interfaces.
+    struct netif *netif;
+
+    for (netif = netif_list; netif != NULL; netif = netif->next) {
+        if (inp==netif) {
+            return ix;
+        }
+        ix++;
+    }
+    return 0;
+}
+
 void app_main()
 {
     esp_err_t ret = ESP_OK;

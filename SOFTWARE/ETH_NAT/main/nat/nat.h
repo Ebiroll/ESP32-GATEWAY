@@ -137,4 +137,7 @@ int nat_rule_check(struct netif *inp, struct netif *forwardp);
 err_t nat_rule_add(struct nat_rule *new_rule);
 err_t nat_rule_remove(struct nat_rule *old_rule);
 
+// TODO,OLAS to be provided by esp-idf!!!
+u8_t netif_get_index(struct netif *inp);
+
 #endif

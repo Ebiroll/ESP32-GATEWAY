@@ -27,12 +27,14 @@
 #include <lwip/ip.h>
 #include <lwip/ip4.h>
 #include <lwip/icmp.h>
+#include <lwip/pbuf.h>
 
 #include "nat/nat.h"
 #include "nat/nat_proto_ip4.h"
 #include "nat/nat_proto_udp.h"
 #include "nat/nat_proto_tcp.h"
 #include "nat/nat_proto_icmp4.h"
+
 
 #if LWIP_IPV4 && LWIP_NAT
 
