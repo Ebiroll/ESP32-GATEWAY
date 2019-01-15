@@ -31,6 +31,7 @@
  * Date           Author       Notes
  * 2015-01-26     Hichard      porting to RT-Thread
  * 2015-01-27     Bernard      code cleanup for lwIP in RT-Thread
+ * 2019-01-15     Olof         Fixes for esp32
  */
 
 /*
@@ -72,16 +73,18 @@
 
 #ifdef LWIP_USING_NAT
 
-#include "lwip/ip.h"
+//#include "lwip/ip.h"
+#include "lwip/ip4.h"
+#include "lwip/ip_addr.h"
 #include "lwip/inet.h"
 #include "lwip/netif.h"
 #include "lwip/ip_addr.h"
 #include "lwip/icmp.h"
-#include "lwip/tcp_impl.h"
+#include "lwip/prot/tcp.h"
 #include "lwip/udp.h"
 #include "lwip/mem.h"
 #include "lwip/sys.h"
-#include "lwip/timers.h"
+#include "lwip/timeouts.h"
 #include "netif/etharp.h"
 
 #include <limits.h>
@@ -217,6 +220,8 @@ ip_nat_init(void)
   int i;
   extern void lwip_ip_input_set_hook(int (*hook)(struct pbuf *p, struct netif *inp));
 
+  SYS_ARCH_DECL_PROTECT(lev);
+
   /* @todo: this can be omitted since we trust static variables
             to be initialized to zero */
   for (i = 0; i < LWIP_NAT_DEFAULT_STATE_TABLES_ICMP; i++) {
@@ -230,13 +235,15 @@ ip_nat_init(void)
   }
 
   /* we must lock scheduler to protect following code */
-  rt_enter_critical();
+  //rt_enter_critical();
+  SYS_ARCH_PROTECT(lev);
 
   /* add a lwip timer for NAT */
   sys_timeout(LWIP_NAT_TMR_INTERVAL_SEC * 1000, nat_timer, NULL);
 
   /* un-protect */
-  rt_exit_critical();
+  //rt_exit_critical();
+  SYS_ARCH_UNPROTECT(lev);
 }
 
 /** Allocate a new ip_nat_conf_t item */
@@ -302,11 +309,14 @@ ip_nat_remove(const ip_nat_entry_t *remove_entry)
   ip_nat_conf_t *previous = NULL;
 
   while (cur != NULL) {
-    /* Remove the NAT interfaces */
-    if ((cur->entry.source_net.addr     == remove_entry->source_net.addr) &&
-        (cur->entry.source_netmask.addr == remove_entry->source_netmask.addr) &&
+    /* Remove the NAT interfaces 
+    (cur->entry.source_net.addr     == remove_entry->source_net.addr) &&
+    (cur->entry.dest_netmask.addr   == remove_entry->dest_netmask.addr) &&
+
+    */
+    if (
+       
         (cur->entry.dest_net.addr       == remove_entry->dest_net.addr) &&
-        (cur->entry.dest_netmask.addr   == remove_entry->dest_netmask.addr) &&
         (cur->entry.out_if              == remove_entry->out_if) &&
         (cur->entry.in_if               == remove_entry->in_if))
     {

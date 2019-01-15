@@ -36,8 +36,8 @@
 #ifndef __LWIP_NAT_H__
 #define __LWIP_NAT_H__
 
-#include <rtthread.h>
-
+//#include <rtthread.h>
+//#define LWIP_USING_NAT
 #ifdef LWIP_USING_NAT
 
 #include "lwip/err.h"
@@ -56,10 +56,10 @@ struct pbuf;
 
 typedef struct ip_nat_entry
 {
-  ip_addr_t    source_net;
-  ip_addr_t    source_netmask;
-  ip_addr_t    dest_net;
-  ip_addr_t    dest_netmask;
+  ip4_addr_t    source_net;  // ip_addr_t
+  ip4_addr_t    source_netmask;
+  ip4_addr_t    dest_net;
+  ip4_addr_t    dest_netmask;
   struct netif *out_if;
   struct netif *in_if;
 } ip_nat_entry_t;
