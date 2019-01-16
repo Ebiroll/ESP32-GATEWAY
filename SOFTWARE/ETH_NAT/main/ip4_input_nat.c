@@ -31,13 +31,32 @@
  */
 #include <lwip/ip.h>
 #include <lwip/ip4.h>
-#include <lwip/ip4_frag.h>
+#include <lwip/ip_frag.h>
 #include <lwip/inet_chksum.h>
 
 #include "nat/nat.h"
 #include "nat/ip4_prerouting_hook.h"
 
 #if LWIP_NAT && LWIP_IPV4
+
+
+/* Macros to get struct ip_hdr fields: */
+// OLAS,TODO
+#define IPH_V(hdr)  ((hdr)->_v_hl >> 4)
+#define IPH_HL(hdr) ((hdr)->_v_hl & 0x0f)
+#define IPH_HL_BYTES(hdr) ((u8_t)(IPH_HL(hdr) * 4))
+#define IPH_TOS(hdr) ((hdr)->_tos)
+#define IPH_LEN(hdr) ((hdr)->_len)
+#define IPH_ID(hdr) ((hdr)->_id)
+#define IPH_OFFSET(hdr) ((hdr)->_offset)
+#define IPH_OFFSET_BYTES(hdr) ((u16_t)((lwip_ntohs(IPH_OFFSET(hdr)) & IP_OFFMASK) * 8U))
+#define IPH_TTL(hdr) ((hdr)->_ttl)
+#define IPH_PROTO(hdr) ((hdr)->_proto)
+#define IPH_CHKSUM(hdr) ((hdr)->_chksum)
+
+extern struct netif *netif_list;
+#define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)
+
 static int
 ip4_canforward(struct pbuf *p)
 {

@@ -30,17 +30,17 @@
 #include <lwip/opt.h>
 
 #ifndef LWIP_NAT
-#define LWIP_NAT			0
+#define LWIP_NAT			1
 #endif
 
 /* Perform NAT for ICMP */
 #ifndef LWIP_NAT_ICMP
-#define LWIP_NAT_ICMP			0
+#define LWIP_NAT_ICMP			1
 #endif
 
 /* NAT ICMP packets with encapsulated IP packets */
 #ifndef LWIP_NAT_ICMP_IP
-#define LWIP_NAT_ICMP_IP		0
+#define LWIP_NAT_ICMP_IP		1
 #endif
 
 /*

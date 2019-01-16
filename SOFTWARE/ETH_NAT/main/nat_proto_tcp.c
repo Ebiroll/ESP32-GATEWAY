@@ -35,6 +35,12 @@
 
 #define LWIP_NAT_TCP_PCB_SZ offsetof(struct nat_pcb, nat_tcp.end)
 
+// OLAS, TODO
+#ifndef IP_IS_V4
+#define IP_IS_V4(ipaddr) 	   (((ipaddr) == NULL) || IP_IS_V4_VAL(*(ipaddr)))
+#endif
+
+
 static int nat_tcp_pcbs_initialized;
 static u8_t nat_tcp_storage[LWIP_NAT_TCP_PCB_SZ * LWIP_NAT_TCP_MAX];
 
@@ -80,7 +86,7 @@ nat_tcp_new(u8_t ext_netif_idx, u8_t int_netif_idx, const ip_addr_t *remote, u16
 	pcb->tcp.next = NULL;
 	pcb->tcp.flags = CLOSED;
 	pcb->tcp.so_options = 0;
-	pcb->tcp.netif_idx = 0xff; /* Give LWIP an invalid netif */
+	//OLAS pcb->tcp.netif_idx = 0xff; /* Give LWIP an invalid netif */
 
 again:
 	if (nat_tcp_port > LWIP_NAT_TCP_LOCAL_PORT_RANGE_END)

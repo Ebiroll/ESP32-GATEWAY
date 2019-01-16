@@ -28,6 +28,8 @@
 #include "nat/nat_proto_udp.h"
 #include "nat/nat_proto_tcp.h"
 #include "nat/nat_proto_icmp4.h"
+#include "lwip/sys.h"
+#include "lwip/timers.h"
 
 #if LWIP_NAT
 static u8_t nat_timeout_tick;

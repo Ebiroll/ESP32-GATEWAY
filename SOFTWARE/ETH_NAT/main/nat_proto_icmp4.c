@@ -24,8 +24,9 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-#include <lwip/prot/icmp.h>
+#include <lwip/icmp.h>
 #include <lwip/inet_chksum.h>
+#include <lwip/pbuf.h>
 
 #include "nat/nat_proto_icmp4.h"
 #include "nat/nat_proto_ip4.h"
@@ -245,10 +246,12 @@ icmp4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwardp)
 	case ICMP_DUR:
 	case ICMP_PP:
 		/* Figure out what to do with our encapsulated IP packet */
-		if (pbuf_remove_header(p, sizeof(*icmphdr)))
+		// OLAS   pbuf_remove_header
+		if (pbuf_header(p, -sizeof(*icmphdr)))
 			return NULL;
 		pcb = icmp4_ip4_prerouting_pcb(p, inp, forwardp);
-		pbuf_add_header_force(p, sizeof(*icmphdr));
+		// OLAS pbuf_add_header_force
+		pbuf_header(p, sizeof(*icmphdr));
 		break;
 #endif
 	default:
@@ -272,9 +275,11 @@ icmp4_prerouting_nat(struct pbuf *p, struct nat_pcb *pcb, int forward)
 	case ICMP_DUR:
 	case ICMP_PP:
 		/* Modify our encapsulated IP packet */
-		pbuf_remove_header(p, sizeof(*icmphdr));
+		//OLAS, pbuf_remove_header
+		pbuf_header(p, -sizeof(*icmphdr));
 		icmp4_ip4_prerouting_nat(&icmphdr->chksum, p, pcb, forward);
-		pbuf_add_header_force(p, sizeof(*icmphdr));
+		// _force
+		pbuf_header(p, sizeof(*icmphdr));
 		break;
 	}
 #endif

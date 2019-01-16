@@ -140,4 +140,6 @@ err_t nat_rule_remove(struct nat_rule *old_rule);
 // TODO,OLAS to be provided by esp-idf!!!
 u8_t netif_get_index(struct netif *inp);
 
+struct netif *netif_get_by_index(u8_t ix);
+
 #endif

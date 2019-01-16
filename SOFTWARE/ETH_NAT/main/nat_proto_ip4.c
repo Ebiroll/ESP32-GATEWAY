@@ -38,6 +38,21 @@
 
 #if LWIP_IPV4 && LWIP_NAT
 
+/* Macros to get struct ip_hdr fields: */
+// OLAS,TODO
+#define IPH_V(hdr)  ((hdr)->_v_hl >> 4)
+#define IPH_HL(hdr) ((hdr)->_v_hl & 0x0f)
+#define IPH_HL_BYTES(hdr) ((u8_t)(IPH_HL(hdr) * 4))
+#define IPH_TOS(hdr) ((hdr)->_tos)
+#define IPH_LEN(hdr) ((hdr)->_len)
+#define IPH_ID(hdr) ((hdr)->_id)
+#define IPH_OFFSET(hdr) ((hdr)->_offset)
+#define IPH_OFFSET_BYTES(hdr) ((u16_t)((lwip_ntohs(IPH_OFFSET(hdr)) & IP_OFFMASK) * 8U))
+#define IPH_TTL(hdr) ((hdr)->_ttl)
+#define IPH_PROTO(hdr) ((hdr)->_proto)
+#define IPH_CHKSUM(hdr) ((hdr)->_chksum)
+
+
 #if LWIP_ICMP && LWIP_NAT_ICMP && LWIP_NAT_ICMP_IP
 /**
  * Find or generate a NAT entry for an encapsulated IPv4 packet.
@@ -57,8 +72,8 @@ icmp4_ip4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwar
 	struct ip_hdr *iphdr = (struct ip_hdr *)p->payload;
 	u16_t iphdr_hlen;
 	struct nat_pcb *pcb;
-	ip_addr_t iphdr_src;
-	ip_addr_t iphdr_dest;
+	ip4_addr_t iphdr_src;
+	ip4_addr_t iphdr_dest;
 
 	if (p->len < IP_HLEN)
 		return NULL;
@@ -72,10 +87,10 @@ icmp4_ip4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwar
 	if (p->len < iphdr_hlen + 8)
 		return NULL;
 
-	ip_addr_copy_from_ip4(iphdr_src, iphdr->src);
-	ip_addr_copy_from_ip4(iphdr_dest, iphdr->dest);
+	ip_addr_copy(iphdr_src, iphdr->src);
+	ip_addr_copy(iphdr_dest, iphdr->dest);
 
-	if (pbuf_remove_header(p, iphdr_hlen))
+	if (pbuf_header(p, -iphdr_hlen))
 		return NULL;
 
 	switch (IPH_PROTO(iphdr)) {
@@ -96,7 +111,7 @@ icmp4_ip4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwar
 		pcb = NULL;
 	}
 
-	pbuf_add_header_force(p, iphdr_hlen);
+	pbuf_header(p, iphdr_hlen);
 
 	return pcb;
 }
@@ -121,7 +136,7 @@ icmp4_ip4_prerouting_nat(u16_t *icmp_chksum, struct pbuf *p,
 	ip_addr_copy_from_ip4(iphdr_src, iphdr->src);
 	ip_addr_copy_from_ip4(iphdr_dest, iphdr->dest);
 
-	pbuf_remove_header(p, iphdr_hlen);
+	pbuf_header(p, -iphdr_hlen);
 
 	switch (IPH_PROTO(iphdr)) {
 #if LWIP_TCP
@@ -139,13 +154,14 @@ icmp4_ip4_prerouting_nat(u16_t *icmp_chksum, struct pbuf *p,
 		break;
 	}
 
-	pbuf_add_header_force(p, iphdr_hlen);
+	pbuf_header(p, iphdr_hlen);
 
 	orig_chksum = iphdr->_chksum;
 	if (forward) {
 		update_chksum(&iphdr->_chksum, &iphdr->dest, &pcb->ip.local_ip, 2);
 		update_chksum(icmp_chksum, &iphdr->dest, &pcb->ip.local_ip, 2);
-		ip4_addr_copy(iphdr->dest, pcb->ip.local_ip);
+		// OLAS, ip4_addr_copy(iphdr->dest, pcb->ip.local_ip);
+		ip_addr_copy_from_ip4(iphdr->dest, pcb->ip.local_ip);
 	} else {
 		update_chksum(&iphdr->_chksum, &iphdr->src, &pcb->nat_local_ip, 2);
 		update_chksum(icmp_chksum, &iphdr->src, &pcb->nat_local_ip, 2);

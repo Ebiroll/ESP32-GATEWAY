@@ -32,6 +32,16 @@
 
 #if LWIP_UDP && LWIP_NAT
 
+
+
+// OLAS, TODO
+#ifndef IP_IS_V4
+#define IP_IS_V4(ipaddr) 	   (((ipaddr) == NULL) || IP_IS_V4_VAL(*(ipaddr)))
+#endif
+
+// To here
+
+
 #define LWIP_NAT_UDP_PCB_SZ offsetof(struct nat_pcb, nat_udp.end)
 
 static int nat_udp_pcbs_initialized;
@@ -87,7 +97,7 @@ nat_udp_new(u8_t ext_netif_idx, u8_t int_netif_idx,
 	/* Initialize LWIP fields to make this a valid udp_pcb */
 	pcb->udp.next = NULL;
 	pcb->udp.flags = 0;
-	pcb->udp.netif_idx = 0xff; /* Give LWIP an invalid netif */
+	//pcb->udp.netif_idx = 0xff; /* Give LWIP an invalid netif */
 
 again:
 	/* Find a free outgoing port */
