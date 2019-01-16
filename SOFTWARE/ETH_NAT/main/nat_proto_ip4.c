@@ -36,6 +36,7 @@
 #include "nat/nat_proto_icmp4.h"
 
 
+
 #if LWIP_IPV4 && LWIP_NAT
 
 /* Macros to get struct ip_hdr fields: */
@@ -72,8 +73,8 @@ icmp4_ip4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwar
 	struct ip_hdr *iphdr = (struct ip_hdr *)p->payload;
 	u16_t iphdr_hlen;
 	struct nat_pcb *pcb;
-	ip4_addr_t iphdr_src;
-	ip4_addr_t iphdr_dest;
+	ip_addr_t iphdr_src;
+	ip_addr_t iphdr_dest;
 
 	if (p->len < IP_HLEN)
 		return NULL;
@@ -87,8 +88,10 @@ icmp4_ip4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwar
 	if (p->len < iphdr_hlen + 8)
 		return NULL;
 
-	ip_addr_copy(iphdr_src, iphdr->src);
-	ip_addr_copy(iphdr_dest, iphdr->dest);
+	//ip_addr_copy(iphdr_src, iphdr->src);
+	//ip_addr_copy(iphdr_dest, iphdr->dest);
+	*(u32_t *)&(iphdr_src.u_addr.ip4)=iphdr->src.addr;
+	*(u32_t *)&(iphdr_dest.u_addr.ip4)=iphdr->dest.addr;
 
 	if (pbuf_header(p, -iphdr_hlen))
 		return NULL;
@@ -115,6 +118,9 @@ icmp4_ip4_prerouting_pcb(struct pbuf *p, struct netif *inp, struct netif *forwar
 
 	return pcb;
 }
+
+#if 0
+
 
 /**
  * Prerouting hook for IPv4 DNAT for ICMP encapsulated packets.
@@ -171,6 +177,7 @@ icmp4_ip4_prerouting_nat(u16_t *icmp_chksum, struct pbuf *p,
 }
 #endif
 
+#if 0
 /**
  * Find or generate a NAT entry for a given IPv4 packet.
  *
@@ -257,4 +264,6 @@ ip4_prerouting_nat(struct pbuf *p, struct nat_pcb *pcb, int forward)
 		ip4_addr_copy(iphdr->dest, pcb->nat_local_ip);
 	}
 }
+#endif
+#endif
 #endif
